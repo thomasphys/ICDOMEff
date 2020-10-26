@@ -1,0 +1,64 @@
+\documentclass[a4paper,onecolumn, 12pt]{article}
+\usepackage{fullpage}
+\usepackage{amsmath,amssymb,mathrsfs}
+\usepackage[pdftex]{color,graphicx}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+\usepackage{wrapfig}
+\usepackage[font={footnotesize}]{caption}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{example}{Verbatim}{fontsize=\small}
+\usepackage{lineno,xcolor}
+% Running line numbers:
+\linenumbers
+\setlength\linenumbersep{3pt}
+\renewcommand\linenumberfont{\normalfont\tiny\sffamily\color{gray}}
+
+\newcommand{\nucl}[2]{
+\ensuremath{
+\phantom{\ensuremath{^{#1}}}
+\llap{\ensuremath{^{#1}}}
+\mbox{#2}
+}
+}
+
+\makeatletter
+\newcommand{\rmnum}[1]{\romannumeral #1}
+\newcommand{\Rmnum}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+\newcommand{\e}[1]{\ensuremath{\times 10^{#1}}}
+\begin{document}
+\title{IceCube DOM Efficiency}
+
+\author{T. McElroy, R. Moore, N. Kulzac, D. Gillcrist, J.P. Yanez}
+%\twocolumn[
+%\begin{@twocolumnfalse}
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+%\end{@twocolumnfalse}
+%]
+
+\section{Introduction}
+The IceCube detector is a cubic kilometer of instumented glacier ice in the Antarctic designed to study the particle flux of cosmic and atmospheric origin. The ice is instrumented with Digital Optical Modules (DOMs) which consist of a Photomultiplier Tube (PMT) along with readout electronics and LED lights for calibration. The DOMs are linked on srings what are then lowered in to vertical drill holes in the ice and frozen in place. Once the string of DOMS is in place the hole is filled with water and refrozen. During the refreezing air bubbles are locked into the colum of ice around the string along with other optical defects in this ice. A model of the hole ice has been built and is folded into a model for the angular acceptance of light for the DOMs (DOM acceptance). The last parameter in simulating the behavior of the DOMs is an overall normalization factor called the DOM efficiency that is the focus of this study. 
+
+\section{Analysis Overview}
+In this study the DOM efficiency is assumed to be a single parameter common to all DOMs; however, the DOM efficiency for DeepCore DOMs will be worked out separatly as a measure for an assesment of thesimulation model for DeepCore DOMs. For data selection purposes the DOMs used in this study is reduced to a subset of 754 DOMs in the center of the detector and below the dust layer. The standard candle used to compare the Data and MC are Muon that travel through the detector as minimally ionizing particles (MIPs). 
+
+\subsection{Event Selection}
+In order to select a clean set of muons in the MIP regien, a series of event criteria have been developed. The following sections will go through these cuts. 
+
+\subsubsection{Stopping Track}
+As discussed in Section ~\ref{}, reletivistic muons will behave like MIPs in an energy range around 100 GeV, giving a range of around 450 m in ice. In this energy range a fairly consistant amount of Cherenkov radiation is emitted by the particle per unit length. In order to be sure that we are observing the Muon in this MIP region, events are selected where the stopping point of the muon can be pbserved within the detector. To avoid poor observations around the edges of the detector a reconstructed endpoint to a track much be 100 m from the bottom of the detector and 50 m from the sides. On top of this, a likelihood that the track is stopping($L_{stop}$) or fully passing through the detector ($L_{inf}$) are computed and only events with $L_{inf}/L_{stop} < 1$ are kept.
+
+\subsubsection{Clean Track}
+Coincidence events can overlap tracks, causing miss identified single tracks. As a means to reduce this a requirment of less than 20 non analysis DOMs are allowed to fire. The quality of the reconstructed track is also tested by looking at the number of direct hits it predicts. A direct hit is defined as a DOM that has a tiem resisdual between the expected direct photon and the measured pulse between -15 ns and 75 ns. 
+
+\section{Systematics}
+
+\section{Results}
