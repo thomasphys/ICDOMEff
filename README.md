@@ -60,11 +60,14 @@ event.py
 writeEvent.py
 	Module to write data to HDF5 file.
 
+filters_InIceSplit_2015.py
+	Filters for data and MC.
+
 ===================================================================================================
 
 DOM Efficiency Analysis Code.
 
-CompilePlotData.py
+GenerateDOMData.py
 	This file reads in the HDF5 files from the processing file and extracts the information needed for assessing the DOM efficiency and computing systematics.
 
 Dependancies:

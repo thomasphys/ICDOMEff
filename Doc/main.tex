@@ -53,12 +53,27 @@ In this study the DOM efficiency is assumed to be a single parameter common to a
 \subsection{Event Selection}
 In order to select a clean set of muons in the MIP regien, a series of event criteria have been developed. The following sections will go through these cuts. 
 
+\subsubsection{Zenith Angle}
+Events are selected with incoming angles between 40 an 70 degrees from vertical. The cut on zenith had been relaxed in previous studies; however it was found that while indeed boosting the total number of events that enter the analysis, it did not greatly increase the number of hit doms. 
+
 \subsubsection{Stopping Track}
 As discussed in Section ~\ref{}, reletivistic muons will behave like MIPs in an energy range around 100 GeV, giving a range of around 450 m in ice. In this energy range a fairly consistant amount of Cherenkov radiation is emitted by the particle per unit length. In order to be sure that we are observing the Muon in this MIP region, events are selected where the stopping point of the muon can be pbserved within the detector. To avoid poor observations around the edges of the detector a reconstructed endpoint to a track much be 100 m from the bottom of the detector and 50 m from the sides. On top of this, a likelihood that the track is stopping($L_{stop}$) or fully passing through the detector ($L_{inf}$) are computed and only events with $L_{inf}/L_{stop} < 1$ are kept.
 
 \subsubsection{Clean Track}
-Coincidence events can overlap tracks, causing miss identified single tracks. As a means to reduce this a requirment of less than 20 non analysis DOMs are allowed to fire. The quality of the reconstructed track is also tested by looking at the number of direct hits it predicts. A direct hit is defined as a DOM that has a tiem resisdual between the expected direct photon and the measured pulse between -15 ns and 75 ns. 
+Coincidence events can overlap tracks, causing miss identified single tracks. As a means to reduce this a requirment of less than 20 non analysis DOMs are allowed to fire. The quality of the reconstructed track is also tested by looking at the number of direct hits it predicts. A direct hit is defined as a DOM that has a tiem resisdual between the expected direct photon and the measured pulse between -15 ns and 75 ns.
+
+The complete list of event selection is given in Table ~\ref{}.
+
+\subsection{DOM selection}
+For every event DOM are selected from the inner part of the detector in  positions that they will be ilumminated from the underside of the DOM where direct exposure to the PMT is possible. The DOM efficiency correction computed in this analysis is an overall correction constant to all DOMs, as such not every DOM needs to be included in the analsysis. To improve the quality of the result an subset of good DOMs are selected that are below the Dust layer and are away from the edges of the detector. On an event by event basis, DOMs are selected that are in positions where they can be illuminatted from the underside and have a Cherenkov light emission point that is at least 50 m from the reconstructed endpoint of the muon track. The DOM selection criteria are give in Table ~\ref{}.
 
 \section{Systematics}
+There are many factors that directly and indirectly enter the DOM efficiency analysis. There effect ont he final result must be studdied and included in the systematic uncertainty of the final result. The following sections will go through the primary systematics that have been identified for this study and go through the analysis to assert their systematic uncertainty on the DOM efficiency. 
+
+%\subsection{Bulk Ice Optics}
+%Due to the nature of this analysis, the optical parameter that most significantly effects the DOM efficiency analysis is the attenuation of light through the ice.
+
+\subsection{Cosmic Shower Models}
+There are several 
 
 \section{Results}
