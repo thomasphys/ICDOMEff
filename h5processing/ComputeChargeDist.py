@@ -3,7 +3,6 @@ from tables import open_file
 import ROOT
 import numpy as np
 import argparse
-from tables import open_file
 from event import *
 from array import array
 
@@ -216,7 +215,7 @@ if __name__ == '__main__':
 	parser.add_argument('-d', '--data', help='Directory of data files.',type=str,
 				default = '/data/user/sanchezh/IC86_2015/Final_Level2_IC86_MPEFit_*.h5')
 	parser.add_argument('-e', '--eff', help='efficiency to be used or data for data.', type = str,
-				default = "eff100")
+				default = "")
 	parser.add_argument('-o', '--output', help='Name of output file.', type=str,
 				default = "out.root")
 	parser.add_argument('-c','--cherdist', help='Distance from track to include', type = float, 
@@ -236,6 +235,7 @@ if __name__ == '__main__':
 	bin_weights_dc = [[] for i in range(nbins)]
 	bin_distance_dc = [[] for i in range(nbins)]
 
+	
 
 	files_dir = args.data
 	file_list_aux = os.listdir(files_dir)
@@ -244,7 +244,7 @@ if __name__ == '__main__':
 #		for eff in args.eff :
 #			file_list += [os.path.join(dirpath,x) for x in filenames if '.h5' in x and eff in x]
 	for filename in file_list_aux :
-		if '.h5' in filename and args.eff in filename :
+		if '.h5' in filename : # and args.eff in filename :
 			file_list.append(filename)
     #remove duclicates
 	file_list = list(set(file_list))
@@ -279,7 +279,7 @@ if __name__ == '__main__':
                                 jobfile.close()
 
 
-		#print(filename)
+		print(h5file)
 		ictable = h5file.root.icecube
 		dctable = h5file.root.deepcore
 
@@ -335,5 +335,4 @@ if __name__ == '__main__':
 			binnedcharge_ic[i], binnedchargeerror_ic[i] = calc_charge_info(bin_DomCharge_ic[i],bin_weights_ic[i])
 
 	OutputHDF5(args.output,args)
-	OutputRoot(args.output)
 

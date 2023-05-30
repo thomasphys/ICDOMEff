@@ -9,6 +9,16 @@ from icecube.weighting import weighting
 from event import *
 from I3Tray import OMKey
 from array import array
+from icecube import dataclasses, dataio, simclasses
+from icecube.icetray import I3Units, OMKey, I3Frame
+
+def GetWeight(value, array_x, array_w) :
+        if(len(array_x)<2) : return 1.0
+        dx = (array_x[-1]-array_x[0])/float(len(array_x));
+        index = int((value-array_x[0])/dx)
+        index = max(0,min(index,len(array_w)-1))
+        return array_w[index]
+
 
 if __name__ == '__main__':
 
@@ -26,12 +36,12 @@ if __name__ == '__main__':
 	parser.add_argument('-p', '--energyrange', help='Range of muon Energies', type = float,
 				nargs = 2, default = [0.0, 9999999.00])
 	parser.add_argument('-i','--impactrange',help='Range of DOM impact parameters to include', 
-				type = float, nargs = "+", default = [0.0,180.0])
+				type = float, nargs = "+", default = [0.0,1.0])
 	parser.add_argument('-t','--trackendpoint',help='Distance from track end point to include',
 				type = float, default = 100.)
 	parser.add_argument('-c','--cherdist', help='Distance from track to include', type = float, 
 				nargs = 2, default = [0.0,200.])
-	parser.add_argument('-w','--binwidth', help='Width to bin distances', type = float, default = 20.0)
+	parser.add_argument('-u','--binwidth', help='Width to bin distances', type = float, default = 20.0)
 	parser.add_argument('-r','--residual', help='time residual region', type = float, 
 				nargs = 2, default = [-15.0,75.0])
 	parser.add_argument('-x','--hitsout',help='Max number of hits outside analysis region',type = int, default = 20)
@@ -42,12 +52,65 @@ if __name__ == '__main__':
 	parser.add_argument('-l', '--likelihood', help='Fit likelyhoods, FiniteReco Likelihood ratio and SplineMPE Rlogl', type = float,
 						nargs = 2, default = [10.,10.])
 	parser.add_argument('-y', '--skim',help="skim fraction",type = float, default = 1.0)
+	parser.add_argument('-w', '--weightfile',help="weight file name", type = str, default = "")
+	parser.add_argument('-g', '--zheight',help="DOM Z range",type = float,
+                                nargs = 2, default = [-500.0, 500.0])
 
 
 	args = parser.parse_args()
 	weightname = 'weight_'+args.flux
 
 	h5outfile = open_file(args.output+".h5", mode="w", title="DOM Calibration HDF5 File")
+
+	domsused = None
+
+	gcd_file = dataio.I3File('/data/exp/IceCube/2015/filtered/level2pass2/AllGCD/Level2pass2_IC86.2015_data_Run00127343_1231_17_219_GCD.i3.zst')
+
+	for frame in gcd_file:
+		if frame.Has('I3Geometry') :
+        		domsUsed = frame['I3Geometry'].omgeo
+			break
+	#build weight tables.
+        zenithweight_x = []
+        zenithweight_w = []
+        impactweight_x = []
+        impactweight_w = []
+        boarderweight_x = []
+        boarderweight_w = []
+        endpointweight_x = []
+        endpointweight_w = []
+
+        print(args.weightfile)
+
+        if(args.weightfile != ""):
+                weighthd5file = open_file(args.weightfile,mode="r")
+                zenith_weighttable = weighthd5file.root.zenith
+                for value in zenith_weighttable.iterrows() :
+                        zenithweight_x.append(value["x"])
+                        zenithweight_w.append(value["w"])
+                impact_weighttable = weighthd5file.root.impact
+                for value in impact_weighttable.iterrows() :
+                        impactweight_x.append(value["x"])
+                        impactweight_w.append(value["w"])
+                boarder_weighttable = weighthd5file.root.boarder
+                for value in boarder_weighttable.iterrows() :
+                        boarderweight_x.append(value["x"])
+                        boarderweight_w.append(value["w"])
+                endpoint_weighttable = weighthd5file.root.endpoint
+                for value in endpoint_weighttable.iterrows() :
+                        endpointweight_x.append(value["x"])
+                        endpointweight_w.append(value["w"])
+                weighthd5file.close()
+        else:
+                zenithweight_x = [-1000.,1000.]
+                zenithweight_w = [1.,1.]
+                impactweight_x = [-1000.,1000.]
+                impactweight_w = [1.,1.]
+                boarderweight_x = [-1000.,1000.]
+                boarderweight_w = [1.,1.]
+                endpointweight_x = [-1000.,1000.]
+                endpointweight_w = [1.,1.]
+
 	
 	icecube = {}
 	deapcore = {}
@@ -68,15 +131,14 @@ if __name__ == '__main__':
 	file_list_aux = os.listdir(files_dir)
 	file_list = list()
 	for (dirpath, dirnames, filenames) in os.walk(files_dir):
-		file_list += [os.path.join(dirpath,x) for x in filenames if '.h5' in x]
-		#for eff in args.eff :
-		#	file_list += [os.path.join(dirpath,x) for x in filenames if '.h5' in x and eff in x]
-			
+		for eff in args.eff :
+			#file_list += [os.path.join(dirpath,x) for x in filenames if '.h5' in x and eff in x]
+			file_list += [os.path.join(dirpath,x) for x in filenames if '.h5' in x]
     #remove duclicates
 	file_list = list(set(file_list))
 
 	nfiles = len(file_list)
-#	print(eff)
+	print(eff)
 	print(nfiles)
 
 	flux = GaisserH4a()
@@ -163,6 +225,12 @@ if __name__ == '__main__':
 				weight = energy_weight/(event['corsika/nEvents'])
 				weight = weight/nfiles
 
+			coszenith = ROOT.TMath.Cos(event['reco/dir/zenith'])
+                        weight *= GetWeight(coszenith,zenithweight_x,zenithweight_w)
+                        weight *= GetWeight(event['borderDistance'],boarderweight_x,boarderweight_w)
+                        weight *= GetWeight(event['recoEndPoint/z'],endpointweight_x,endpointweight_w)
+
+
 			for dom in domtable.iterrows(domindex) :
 				#print("in dom loop")
 				#print(dom['eventId'])
@@ -175,27 +243,35 @@ if __name__ == '__main__':
 				else :
 					break
 				#print("in dom loop 2")
-				if dom['impactAngle'] < args.impactrange[0]*3.14/180. or  dom['impactAngle'] > args.impactrange[1]*3.14/180.:
+				if ROOT.TMath.Cos(dom['impactAngle']) < args.impactrange[0] or  ROOT.TMath.Cos(dom['impactAngle']) > args.impactrange[1]:
 					continue
 				if dom['distAboveEndpoint'] < args.trackendpoint :
 					continue
 				if dom['recoDist'] < args.cherdist[0] or dom['recoDist'] > args.cherdist[1] :
 					continue
 				if event['icHitsOut']> args.nhits[1] or event['icHitsOut'] < 1 :
-					continue; 
+					continue
+
+				#omkey = OMKey(dom['string'],dom['om'],0)
+				#if domsused[omkey].pos.z < args.zheight[0] or domsused[omkey].pos.z > args.zheight[1]:
+			#		continue
+
+				cosimpact = ROOT.TMath.Cos(dom['impactAngle'])
+                                weight_dom = GetWeight(cosimpact,impactweight_x,impactweight_w)
+ 
 				#print("in dom loop 3")
 				if dom['string'] in DC_Strings :
 					dcrow['charge'] = dom['totalCharge']
 					dcrow['dist'] = dom['recoDist']
 					if args.flux != "data" :
-						dcrow['weight'] = weight
+						dcrow['weight'] = weight*weight_dom
 					dcrow.append()
 					#print("append DC")
 				if dom['string'] in IC_Strings :
 					icrow['charge'] = dom['totalCharge']
 					icrow['dist'] = dom['recoDist']
 					if args.flux != "data" :
-						icrow['weight'] = weight
+						icrow['weight'] = weight*weight_dom
 					icrow.append()
 					#print("append IC")
 					
